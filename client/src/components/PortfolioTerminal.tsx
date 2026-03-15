@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 
 export default function PortfolioTerminal() {
-  const welcomeMessage = `
+  const desktopWelcomeMessage = `
 ╔═══════════════════════════════════════════════════════════════╗
 ║                                                               ║
 ║      █████╗ ██████╗ ██████╗  █████╗ ██████╗                  ║
@@ -23,6 +23,22 @@ export default function PortfolioTerminal() {
 
 Type 'help' to see available commands.
 Type 'about' to learn more about me.`
+
+  const mobileWelcomeMessage = `
+[SYSTEM INITIALIZED] - Portfolio Terminal v1.0
+[STATUS] System online and ready for interaction
+[LOCATION] Bangalore, India
+
+ABRAR PASHA
+Blockchain Developer & Prompt Engineer
+
+Type 'help' to see available commands.
+Type 'about' to learn more about me.`
+
+  const [isMobileView, setIsMobileView] = useState(
+    typeof window !== 'undefined' ? window.innerWidth < 640 : false,
+  )
+  const welcomeMessage = isMobileView ? mobileWelcomeMessage : desktopWelcomeMessage
 
   const [history, setHistory] = useState<Array<{ command: string; output: string }>>([
     { command: '/welcome', output: '' },
@@ -474,6 +490,15 @@ Type 'help' to see available commands.`
   }, [welcomeMessage])
 
   useEffect(() => {
+    const onResize = () => {
+      setIsMobileView(window.innerWidth < 640)
+    }
+
+    window.addEventListener('resize', onResize)
+    return () => window.removeEventListener('resize', onResize)
+  }, [])
+
+  useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [history])
 
@@ -577,7 +602,7 @@ Type 'help' to see available commands.`
                 <span className="text-lime-400 font-semibold sm:hidden whitespace-nowrap">$</span>
                 <span className="text-white break-all">{entry.command}</span>
               </div>
-              <div className="whitespace-pre-wrap break-words text-gray-300 pl-3 sm:pl-6 leading-relaxed text-xs sm:text-sm overflow-x-auto">
+              <div className={`${i === 0 ? 'whitespace-pre overflow-x-auto' : 'whitespace-pre-wrap break-words'} text-gray-300 pl-3 sm:pl-6 leading-relaxed text-xs sm:text-sm`}>
                 {renderOutput(entry.output)}
                 {i === 0 && isBootTyping && <span className="terminal-cursor text-cyan-400 ml-1">█</span>}
               </div>
