@@ -521,26 +521,26 @@ Type 'help' to see available commands.`
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-black text-cyan-400 p-4 font-mono overflow-hidden" style={{
+    <div className="relative flex items-center justify-center min-h-[100dvh] bg-black text-cyan-400 p-2 sm:p-4 font-mono overflow-x-hidden" style={{
       backgroundImage: 'url(https://d2xsxph8kpxj0f.cloudfront.net/310519663439873820/o5AQewRcV8tiTtnkrVKgEe/hero-terminal-background-JZiieCP7HeBTCqs8mkdnop.webp)',
       backgroundSize: 'cover',
       backgroundPosition: 'center',
-      backgroundAttachment: 'fixed'
+      backgroundAttachment: 'scroll'
     }}>
       {/* Overlay for better text readability */}
       <div className="absolute inset-0 bg-black/70 pointer-events-none" />
       
-      <div className="w-full max-w-5xl bg-black/80 rounded-lg overflow-hidden shadow-2xl border-2 border-cyan-400 relative z-10" style={{
+      <div className="w-full max-w-5xl bg-black/80 rounded-lg overflow-hidden shadow-2xl border border-cyan-400 sm:border-2 relative z-10" style={{
         boxShadow: '0 0 20px rgba(0, 217, 255, 0.3), inset 0 0 20px rgba(0, 217, 255, 0.1)'
       }}>
         {/* Terminal Header */}
-        <div className="flex items-center gap-2 p-3 bg-gray-900 text-xs text-gray-400 border-b border-cyan-400/30">
+        <div className="flex items-center gap-1.5 sm:gap-2 p-2 sm:p-3 bg-gray-900 text-[10px] sm:text-xs text-gray-400 border-b border-cyan-400/30">
           <div className="flex gap-1.5">
             <div className="w-3 h-3 rounded-full bg-red-500 hover:bg-red-400 transition-colors cursor-pointer" />
             <div className="w-3 h-3 rounded-full bg-yellow-500 hover:bg-yellow-400 transition-colors cursor-pointer" />
             <div className="w-3 h-3 rounded-full bg-lime-500 hover:bg-lime-400 transition-colors cursor-pointer" />
           </div>
-          <div className="flex-1 text-center font-semibold text-cyan-400">abrar@portfolio:~$ | Terminal v1.0</div>
+          <div className="flex-1 text-center font-semibold text-cyan-400 truncate px-1">Terminal v1.0</div>
           <button
             type="button"
             onClick={() => {
@@ -552,11 +552,11 @@ Type 'help' to see available commands.`
                 return next
               })
             }}
-            className={`mr-3 rounded border px-2 py-0.5 text-[10px] font-semibold transition-colors ${soundEnabled ? 'border-lime-400 text-lime-400 hover:bg-lime-400/10' : 'border-gray-500 text-gray-400 hover:bg-gray-700/40'}`}
+            className={`rounded border px-1.5 sm:px-2 py-0.5 text-[9px] sm:text-[10px] font-semibold transition-colors ${soundEnabled ? 'border-lime-400 text-lime-400 hover:bg-lime-400/10' : 'border-gray-500 text-gray-400 hover:bg-gray-700/40'}`}
           >
             {soundEnabled ? 'SFX ON' : 'SFX OFF'}
           </button>
-          <div className="text-xs">
+          <div className="text-[10px] sm:text-xs whitespace-nowrap">
             <span className="text-lime-400 animate-pulse">●</span> ONLINE
           </div>
         </div>
@@ -564,7 +564,7 @@ Type 'help' to see available commands.`
         {/* Terminal Output */}
         <div 
           ref={terminalRef} 
-          className="h-[70vh] overflow-y-auto p-6 space-y-3 bg-black/50 cursor-text"
+          className="h-[68dvh] sm:h-[70vh] overflow-y-auto p-3 sm:p-6 space-y-3 bg-black/50 cursor-text"
           style={{
             scrollbarWidth: 'thin',
             scrollbarColor: '#00D9FF #0A0E27'
@@ -572,11 +572,12 @@ Type 'help' to see available commands.`
         >
           {history.map((entry, i) => (
             <div key={i} className="space-y-2 animate-fadeIn">
-              <div className="flex gap-2">
-                <span className="text-lime-400 font-semibold">abrar@portfolio:~$</span>
-                <span className="text-white">{entry.command}</span>
+              <div className="flex gap-2 min-w-0">
+                <span className="text-lime-400 font-semibold hidden sm:inline whitespace-nowrap">abrar@portfolio:~$</span>
+                <span className="text-lime-400 font-semibold sm:hidden whitespace-nowrap">$</span>
+                <span className="text-white break-all">{entry.command}</span>
               </div>
-              <div className="whitespace-pre-wrap text-gray-300 pl-6 leading-relaxed text-sm">
+              <div className="whitespace-pre-wrap break-words text-gray-300 pl-3 sm:pl-6 leading-relaxed text-xs sm:text-sm overflow-x-auto">
                 {renderOutput(entry.output)}
                 {i === 0 && isBootTyping && <span className="terminal-cursor text-cyan-400 ml-1">█</span>}
               </div>
@@ -584,8 +585,9 @@ Type 'help' to see available commands.`
           ))}
 
           {/* Current Command Input */}
-          <div className="flex gap-2 items-center">
-            <span className="text-lime-400 font-semibold">abrar@portfolio:~$</span>
+          <div className="flex gap-2 items-center min-w-0">
+            <span className="text-lime-400 font-semibold hidden sm:inline whitespace-nowrap">abrar@portfolio:~$</span>
+            <span className="text-lime-400 font-semibold sm:hidden whitespace-nowrap">$</span>
             <input
               ref={inputRef}
               type="text"
@@ -593,7 +595,7 @@ Type 'help' to see available commands.`
               onChange={e => setCurrentCommand(e.target.value)}
               onKeyDown={handleKeyDown}
               disabled={isBootTyping}
-              className="flex-1 bg-transparent outline-none text-white caret-cyan-400"
+              className="flex-1 min-w-0 bg-transparent outline-none text-white caret-cyan-400 text-sm sm:text-base"
               placeholder={isBootTyping ? 'Boot sequence running...' : 'Type a command...'}
               autoFocus
               spellCheck="false"
@@ -605,10 +607,10 @@ Type 'help' to see available commands.`
         </div>
         
         {/* Terminal Footer */}
-        <div className="bg-gray-900 px-6 py-3 text-xs text-gray-500 border-t border-cyan-400/30">
-          <div className="flex justify-between items-center">
+        <div className="bg-gray-900 px-3 sm:px-6 py-2.5 sm:py-3 text-[10px] sm:text-xs text-gray-500 border-t border-cyan-400/30">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-1 sm:gap-3">
             <span className="text-cyan-400/70">Type 'help' for commands • Use ↑/↓ arrows for history</span>
-            <span className="text-lime-400/70">Press Ctrl+C to interrupt • 'clear' to reset</span>
+            <span className="text-lime-400/70 hidden sm:inline">Press Ctrl+C to interrupt • 'clear' to reset</span>
           </div>
         </div>
       </div>
