@@ -3,8 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 
 export default function PortfolioTerminal() {
-  const [history, setHistory] = useState<Array<{ command: string; output: string }>>([
-    { command: '/welcome', output: `
+  const welcomeMessage = `
 ╔═══════════════════════════════════════════════════════════════╗
 ║                                                               ║
 ║      █████╗ ██████╗ ██████╗  █████╗ ██████╗                  ║
@@ -23,13 +22,83 @@ export default function PortfolioTerminal() {
 [LOCATION] Bangalore, India
 
 Type 'help' to see available commands.
-Type 'about' to learn more about me.` },
+Type 'about' to learn more about me.`
+
+  const [history, setHistory] = useState<Array<{ command: string; output: string }>>([
+    { command: '/welcome', output: '' },
   ])
   const [currentCommand, setCurrentCommand] = useState('')
   const [historyIndex, setHistoryIndex] = useState(-1)
+  const [isBootTyping, setIsBootTyping] = useState(true)
+  const [soundEnabled, setSoundEnabled] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
   const terminalRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  const audioContextRef = useRef<AudioContext | null>(null)
+  const sessionStartRef = useRef(Date.now())
+  const commandCountRef = useRef(0)
+  const validCommandCountRef = useRef(0)
+  const commandUsageRef = useRef<Record<string, number>>({})
+
+  const fortuneQuotes = [
+    'Code is poetry when it solves a real problem.',
+    'Ship small, learn fast, iterate hard.',
+    'Smart contracts are strict teachers with expensive exams.',
+    'Build tools that your future self thanks you for.',
+    'AI plus blockchain is best when it serves real users.',
+  ]
+
+  const getSessionDuration = () => {
+    const totalSeconds = Math.floor((Date.now() - sessionStartRef.current) / 1000)
+    const minutes = Math.floor(totalSeconds / 60)
+    const seconds = totalSeconds % 60
+    return `${minutes}m ${seconds}s`
+  }
+
+  const getTopCommand = () => {
+    const entries = Object.entries(commandUsageRef.current)
+    if (entries.length === 0) return 'none'
+
+    const [topName, topCount] = entries.sort((a, b) => b[1] - a[1])[0]
+    return `${topName} (${topCount})`
+  }
+
+  const createMatrixNoise = () => {
+    const glyphs = '01#@$%&*+=<>[]{}'
+    return Array.from({ length: 8 }, () => (
+      Array.from({ length: 54 }, () => glyphs[Math.floor(Math.random() * glyphs.length)]).join('')
+    )).join('\n')
+  }
+
+  const playKeySound = (frequency: number, duration = 0.02, volume = 0.012) => {
+    if (!soundEnabled || typeof window === 'undefined') return
+
+    if (!audioContextRef.current) {
+      const AudioContextCtor = window.AudioContext || (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext
+      if (!AudioContextCtor) return
+      audioContextRef.current = new AudioContextCtor()
+    }
+
+    const audioContext = audioContextRef.current
+    if (!audioContext) return
+
+    if (audioContext.state === 'suspended') {
+      void audioContext.resume()
+    }
+
+    const oscillator = audioContext.createOscillator()
+    const gain = audioContext.createGain()
+
+    oscillator.type = 'square'
+    oscillator.frequency.value = frequency
+    gain.gain.value = volume
+
+    oscillator.connect(gain)
+    gain.connect(audioContext.destination)
+
+    oscillator.start()
+    oscillator.stop(audioContext.currentTime + duration)
+  }
 
   const commands = {
     'help': () => `
@@ -43,6 +112,8 @@ Type 'about' to learn more about me.` },
   skills, s      Display technical skills matrix
   projects, p    View project portfolio
   contact, c     Show contact information
+  resume, r      Open/download CV resume
+  socials, so    Show GitHub, LinkedIn & Email links
   clear          Clear terminal screen
   help, h        Display this help message
 
@@ -218,13 +289,128 @@ Preferred Contact: Email or LinkedIn
       setHistory([])
       return ''
     },
+    'r': function() { return commands['resume'](); },
+    'resume': () => {
+      if (typeof window !== 'undefined') {
+        window.open('https://drive.google.com/file/d/1ajFLKg1dO5fJ1up1GBtXi6q4y80IUWyI/view?usp=sharing', '_blank')
+      }
+      return `
+┌─────────────────────────────────────────────────────────────┐
+│                        RESUME                                │
+└─────────────────────────────────────────────────────────────┘
+
+Opening resume in a new tab...
+
+Direct Link:
+  https://drive.google.com/file/d/1ajFLKg1dO5fJ1up1GBtXi6q4y80IUWyI/view?usp=sharing
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+If the tab did not open, click the link above.
+      `
+    },
+    'so': function() { return commands['socials'](); },
+    'socials': () => `
+┌─────────────────────────────────────────────────────────────┐
+│                        SOCIALS                               │
+└─────────────────────────────────────────────────────────────┘
+
+🐙 GitHub:   https://github.com/abrar-0020
+💼 LinkedIn: https://linkedin.com/in/abrar-pasha
+📧 Email:    abrarp952@gmail.com
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Click any link above to open it directly.
+    `,
+    'whoami': () => `
+abrar
+Role: Blockchain Developer + Prompt Engineer
+Mode: Building production-ready ideas with AI and Web3
+Status: Available for impactful internships and freelance projects
+    `,
+    'sudo hire me': () => `
+[sudo] password for recruiter: ********
+Access granted.
+
+Why hire Abrar:
+  • Builds fast prototypes that actually ship
+  • Strong blend of AI, blockchain, and full-stack implementation
+  • Product mindset with clean execution
+
+Quick Actions:
+  Resume: https://drive.google.com/file/d/1ajFLKg1dO5fJ1up1GBtXi6q4y80IUWyI/view?usp=sharing
+  Email:  abrarp952@gmail.com
+  GitHub: https://github.com/abrar-0020
+    `,
+    'matrix': () => `
+┌─────────────────────────────────────────────────────────────┐
+│                  MATRIX DIAGNOSTIC MODE                     │
+└─────────────────────────────────────────────────────────────┘
+${createMatrixNoise()}
+
+Signal lock acquired.
+Reality.exe is running in compatible mode.
+    `,
+    'fortune': () => {
+      const pick = fortuneQuotes[Math.floor(Math.random() * fortuneQuotes.length)]
+      return `
+┌─────────────────────────────────────────────────────────────┐
+│                         FORTUNE                             │
+└─────────────────────────────────────────────────────────────┘
+
+"${pick}"
+      `
+    },
+    'stats': () => {
+      const total = commandCountRef.current
+      const valid = validCommandCountRef.current
+      const invalid = total - valid
+      return `
+┌─────────────────────────────────────────────────────────────┐
+│                       SESSION STATS                         │
+└─────────────────────────────────────────────────────────────┘
+
+Session Time:     ${getSessionDuration()}
+Commands Run:     ${total}
+Valid Commands:   ${valid}
+Unknown Commands: ${invalid}
+Top Command:      ${getTopCommand()}
+      `
+    },
+    'unlock abrar': () => `
+🔓 Secret unlocked: ABRAR-LABS
+
+Prototype Drop:
+  "ChainLens" - AI assistant that reads on-chain wallet behavior,
+  labels transaction intent, and summarizes risk signals in plain language.
+
+Stack:
+  React, Python, EVM RPC, embeddings, vector search
+
+Say "hireme" next time and this becomes real.
+    `,
+    'h': function() { return commands['help'](); },
   }
 
   const handleCommand = () => {
     const cmd = currentCommand.trim().toLowerCase()
+    if (!cmd) {
+      return
+    }
+
     const commandFn = commands[cmd as keyof typeof commands]
+
+    commandCountRef.current += 1
+    if (commandFn) {
+      validCommandCountRef.current += 1
+      commandUsageRef.current[cmd] = (commandUsageRef.current[cmd] || 0) + 1
+    }
+
     const output = commandFn ? commandFn() : `$ command not found: ${cmd}
 Type 'help' to see available commands.`
+
+    if (soundEnabled) {
+      playKeySound(commandFn ? 360 : 220, commandFn ? 0.03 : 0.05, commandFn ? 0.015 : 0.02)
+    }
 
     if (cmd !== 'clear') {
       setHistory(prev => [...prev, { command: currentCommand, output }])
@@ -236,8 +422,10 @@ Type 'help' to see available commands.`
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
+      playKeySound(520, 0.03, 0.015)
       handleCommand()
     } else if (e.key === 'ArrowUp') {
+      playKeySound(480, 0.02, 0.01)
       e.preventDefault()
       setHistoryIndex(prev => {
         const newIndex = Math.min(prev + 1, history.length - 1)
@@ -247,14 +435,43 @@ Type 'help' to see available commands.`
         return newIndex
       })
     } else if (e.key === 'ArrowDown') {
+      playKeySound(430, 0.02, 0.01)
       e.preventDefault()
       setHistoryIndex(prev => {
         const newIndex = Math.max(prev - 1, -1)
         setCurrentCommand(newIndex === -1 ? '' : history[history.length - 1 - newIndex]?.command || '')
         return newIndex
       })
+    } else if (e.key === 'Backspace') {
+      playKeySound(300, 0.015, 0.01)
+    } else if (e.key.length === 1) {
+      playKeySound(660, 0.012, 0.008)
     }
   }
+
+  useEffect(() => {
+    let index = 0
+    const typingInterval = window.setInterval(() => {
+      index += 2
+
+      setHistory(prev => {
+        if (prev.length === 0) return prev
+        const next = [...prev]
+        next[0] = {
+          ...next[0],
+          output: welcomeMessage.slice(0, index),
+        }
+        return next
+      })
+
+      if (index >= welcomeMessage.length) {
+        window.clearInterval(typingInterval)
+        setIsBootTyping(false)
+      }
+    }, 10)
+
+    return () => window.clearInterval(typingInterval)
+  }, [welcomeMessage])
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -324,6 +541,21 @@ Type 'help' to see available commands.`
             <div className="w-3 h-3 rounded-full bg-lime-500 hover:bg-lime-400 transition-colors cursor-pointer" />
           </div>
           <div className="flex-1 text-center font-semibold text-cyan-400">abrar@portfolio:~$ | Terminal v1.0</div>
+          <button
+            type="button"
+            onClick={() => {
+              setSoundEnabled(prev => {
+                const next = !prev
+                if (next) {
+                  playKeySound(740, 0.03, 0.015)
+                }
+                return next
+              })
+            }}
+            className={`mr-3 rounded border px-2 py-0.5 text-[10px] font-semibold transition-colors ${soundEnabled ? 'border-lime-400 text-lime-400 hover:bg-lime-400/10' : 'border-gray-500 text-gray-400 hover:bg-gray-700/40'}`}
+          >
+            {soundEnabled ? 'SFX ON' : 'SFX OFF'}
+          </button>
           <div className="text-xs">
             <span className="text-lime-400 animate-pulse">●</span> ONLINE
           </div>
@@ -346,6 +578,7 @@ Type 'help' to see available commands.`
               </div>
               <div className="whitespace-pre-wrap text-gray-300 pl-6 leading-relaxed text-sm">
                 {renderOutput(entry.output)}
+                {i === 0 && isBootTyping && <span className="terminal-cursor text-cyan-400 ml-1">█</span>}
               </div>
             </div>
           ))}
@@ -359,11 +592,12 @@ Type 'help' to see available commands.`
               value={currentCommand}
               onChange={e => setCurrentCommand(e.target.value)}
               onKeyDown={handleKeyDown}
+              disabled={isBootTyping}
               className="flex-1 bg-transparent outline-none text-white caret-cyan-400"
+              placeholder={isBootTyping ? 'Boot sequence running...' : 'Type a command...'}
               autoFocus
               spellCheck="false"
             />
-            <span className="text-cyan-400 animate-pulse">█</span>
           </div>
 
           {/* Auto-scroll anchor */}
@@ -378,6 +612,20 @@ Type 'help' to see available commands.`
           </div>
         </div>
       </div>
+      <style>{`
+        .terminal-cursor {
+          animation: terminal-blink 1s steps(1, end) infinite;
+        }
+
+        @keyframes terminal-blink {
+          0%, 50% {
+            opacity: 1;
+          }
+          50.01%, 100% {
+            opacity: 0;
+          }
+        }
+      `}</style>
     </div>
   )
 }
