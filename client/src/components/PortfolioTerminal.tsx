@@ -1,0 +1,383 @@
+'use client'
+
+import { useState, useRef, useEffect } from 'react'
+
+export default function PortfolioTerminal() {
+  const [history, setHistory] = useState<Array<{ command: string; output: string }>>([
+    { command: '/welcome', output: `
+╔═══════════════════════════════════════════════════════════════╗
+║                                                               ║
+║      █████╗ ██████╗ ██████╗  █████╗ ██████╗                  ║
+║     ██╔══██╗██╔══██╗██╔══██╗██╔══██╗██╔══██╗                 ║
+║     ███████║██████╔╝██████╔╝███████║██████╔╝                 ║
+║     ██╔══██║██╔══██╗██╔══██╗██╔══██║██╔══██╗                 ║
+║     ██║  ██║██████╔╝██║  ██║██║  ██║██║  ██║                 ║
+║     ╚═╝  ╚═╝╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝                 ║
+║                                                               ║
+║              Blockchain Developer & Prompt Engineer          ║
+║                                                               ║
+╚═══════════════════════════════════════════════════════════════╝
+
+[SYSTEM INITIALIZED] - Portfolio Terminal v1.0
+[STATUS] System online and ready for interaction
+[LOCATION] Bangalore, India
+
+Type 'help' to see available commands.
+Type 'about' to learn more about me.` },
+  ])
+  const [currentCommand, setCurrentCommand] = useState('')
+  const [historyIndex, setHistoryIndex] = useState(-1)
+  const bottomRef = useRef<HTMLDivElement>(null)
+  const terminalRef = useRef<HTMLDivElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  const commands = {
+    'help': () => `
+┌─────────────────────────────────────────────────────────────┐
+│                    AVAILABLE COMMANDS                        │
+└─────────────────────────────────────────────────────────────┘
+
+  about, a       Display personal information and summary
+  experience, e  View work experience and internships
+  education, ed  Show educational background
+  skills, s      Display technical skills matrix
+  projects, p    View project portfolio
+  contact, c     Show contact information
+  clear          Clear terminal screen
+  help, h        Display this help message
+
+Type any command to execute. Use ↑/↓ arrows to navigate history.
+    `,
+    'a': function() { return commands['about'](); },
+    'about': () => `
+┌─────────────────────────────────────────────────────────────┐
+│                        ABOUT ME                              │
+└─────────────────────────────────────────────────────────────┘
+
+Name: Abrar Pasha
+Role: Blockchain Developer & Prompt Engineer
+Location: 📍 Bangalore, India
+Status: AI Research Intern (Jun 2025 – Sep 2025)
+
+Bio:
+Computer Science Engineering student specializing in Blockchain 
+Technology at Presidency University, Bangalore. I build AI-powered 
+and blockchain-enabled applications, focusing on rapid prototyping, 
+smart contracts, and full-stack development.
+
+Expertise Areas:
+  • Blockchain & Smart Contracts (Solidity, Ethereum)
+  • AI Integration & Machine Learning
+  • Web3 Development
+  • Full-Stack Development
+  • Rapid Prototyping
+
+Current Focus:
+Building AI-powered application prototypes and contributing to 
+AI-driven educational platforms.
+    `,
+    'e': function() { return commands['experience'](); },
+    'experience': () => `
+┌─────────────────────────────────────────────────────────────┐
+│                    WORK EXPERIENCE                           │
+└─────────────────────────────────────────────────────────────┘
+
+[2025-06 to 2025-09] AI Research Intern
+Coding Jr
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  • Built AI-powered application prototypes
+  • Integrated machine learning models and AI APIs
+  • Contributed to AI-driven educational platforms
+  • Tech Stack: Python, AI APIs, ML Integration
+
+Status: Currently seeking opportunities in blockchain and AI development
+    `,
+    'ed': function() { return commands['education'](); },
+    'education': () => `
+┌─────────────────────────────────────────────────────────────┐
+│                    EDUCATION                                 │
+└─────────────────────────────────────────────────────────────┘
+
+[2023-Present] B.Tech CSE (Blockchain Technology)
+Presidency University, Bangalore
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  • Specialization: Blockchain Technology
+  • Projects: Decentralized voting, Smart contract security
+  • Focus: Building production-ready blockchain applications
+
+[2021-2023] PUC (Pre-University Course)
+Presidency PU College, Bangalore
+  • Score: 80%
+
+[2009-2021] High School
+Bharath English High School, Bangalore
+  • Score: 86%
+    `,
+    's': function() { return commands['skills'](); },
+    'skills': () => `
+┌─────────────────────────────────────────────────────────────┐
+│                   TECHNICAL SKILLS MATRIX                    │
+└─────────────────────────────────────────────────────────────┘
+
+PROGRAMMING LANGUAGES:
+  Python                ████████████████████ 100%
+  JavaScript            ██████████████████   90%
+  Solidity              ██████████████████   90%
+  Java                  ████████████████     80%
+  C                     ████████████         60%
+  HTML/CSS              ████████████████████ 100%
+
+BLOCKCHAIN & WEB3:
+  Smart Contracts       ██████████████████   90%
+  Solidity              ██████████████████   90%
+  Ethereum              ██████████████████   90%
+  Web3.js               ████████████████     80%
+  DeFi Concepts         ████████████         60%
+
+AI & MACHINE LEARNING:
+  AI APIs Integration   ██████████████████   90%
+  ML Models             ████████████████     80%
+  Python ML Libraries   ████████████████     80%
+  Prompt Engineering    ████████████████████ 100%
+
+TOOLS & FRAMEWORKS:
+  React                 ████████████████     80%
+  Flask                 ████████████████     80%
+  Git/GitHub            ████████████████████ 100%
+  Rapid Prototyping     ████████████████████ 100%
+  Docker                ████████████         60%
+    `,
+    'p': function() { return commands['projects'](); },
+    'projects': () => `
+┌─────────────────────────────────────────────────────────────┐
+│                   PROJECT PORTFOLIO                          │
+└─────────────────────────────────────────────────────────────┘
+
+[1] Decentralized E-Voting System
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Description: Blockchain voting platform ensuring transparency
+  Tech Stack: Solidity, Ethereum, Web3.js, React
+  GitHub: https://github.com/abrar-0020/Decentralized-E-Voting-System-for-College
+  Features: Tamper-proof results, transparent voting, smart contracts
+
+[2] Integri-Checker
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Description: File integrity verification tool using cryptographic hashing
+  Tech Stack: Python, Tkinter, Cryptography
+  GitHub: https://github.com/abrar-0020/Integri-Checker
+  Features: Hash verification, file integrity checks, secure validation
+
+[3] AI Chat Application
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Description: Context-aware conversational AI system
+  Tech Stack: Python, Flask, AI APIs, JavaScript
+  GitHub: https://github.com/abrar-0020/ai-chat-app
+  Features: Natural language processing, context awareness, real-time chat
+
+[4] Code-Canva-AI
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Description: Converts design screenshots into functional code
+  Tech Stack: Python, Computer Vision, AI APIs, React
+  GitHub: https://github.com/abrar-0020/Code-Canva-AI
+  Features: Design-to-code conversion, AI-powered code generation
+
+[5] Voice Calculator
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Description: Android voice-based calculator
+  Tech Stack: Java, Android SDK, Speech Recognition
+  GitHub: https://github.com/abrar-0020/Voice-Calculator
+  Features: Voice input, real-time calculation, mobile app
+
+[6] Expense Tracker
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Description: Offline expense management app
+  Tech Stack: Flutter, Dart, SQL
+  GitHub: https://github.com/abrar-0020/Expense_Tracker
+  Features: Offline tracking, expense categorization, data persistence
+    `,
+    'c': function() { return commands['contact'](); },
+    'contact': () => `
+┌─────────────────────────────────────────────────────────────┐
+│                   CONTACT INFORMATION                        │
+└─────────────────────────────────────────────────────────────┘
+
+📧 Email:    abrarp952@gmail.com
+🐙 GitHub:   https://github.com/abrar-0020
+💼 LinkedIn: https://linkedin.com/in/abrar-pasha
+📍 Location: Bangalore, India
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Feel free to reach out for opportunities, collaborations, or 
+discussions about blockchain, AI, and full-stack development!
+
+Response Time: Usually within 24 hours
+Preferred Contact: Email or LinkedIn
+    `,
+    'clear': () => {
+      setHistory([])
+      return ''
+    },
+  }
+
+  const handleCommand = () => {
+    const cmd = currentCommand.trim().toLowerCase()
+    const commandFn = commands[cmd as keyof typeof commands]
+    const output = commandFn ? commandFn() : `$ command not found: ${cmd}
+Type 'help' to see available commands.`
+
+    if (cmd !== 'clear') {
+      setHistory(prev => [...prev, { command: currentCommand, output }])
+    }
+    
+    setCurrentCommand('')
+    setHistoryIndex(-1)
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleCommand()
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault()
+      setHistoryIndex(prev => {
+        const newIndex = Math.min(prev + 1, history.length - 1)
+        if (history.length > 0) {
+          setCurrentCommand(history[history.length - 1 - newIndex]?.command || '')
+        }
+        return newIndex
+      })
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault()
+      setHistoryIndex(prev => {
+        const newIndex = Math.max(prev - 1, -1)
+        setCurrentCommand(newIndex === -1 ? '' : history[history.length - 1 - newIndex]?.command || '')
+        return newIndex
+      })
+    }
+  }
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [history])
+
+  useEffect(() => {
+    const handleClick = () => {
+      inputRef.current?.focus()
+    }
+    
+    if (terminalRef.current) {
+      terminalRef.current.addEventListener('click', handleClick)
+    }
+    
+    return () => {
+      if (terminalRef.current) {
+        terminalRef.current.removeEventListener('click', handleClick)
+      }
+    }
+  }, [])
+
+  const renderOutput = (output: string) => {
+    const urlRegex = /(https?:\/\/[^\s]+)/g
+    const emailRegex = /([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/g
+    
+    let parts = output.split(urlRegex)
+    parts = parts.flatMap(part => 
+      urlRegex.test(part) ? [part] : part.split(emailRegex)
+    )
+    
+    return parts.map((part, index) => {
+      if (urlRegex.test(part)) {
+        return (
+          <a key={index} href={part} target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:text-lime-400 hover:underline transition-colors cursor-pointer">
+            {part}
+          </a>
+        )
+      } else if (emailRegex.test(part)) {
+        return (
+          <a key={index} href={`mailto:${part}`} className="text-cyan-400 hover:text-lime-400 hover:underline transition-colors cursor-pointer">
+            {part}
+          </a>
+        )
+      }
+      return <span key={index}>{part}</span>
+    })
+  }
+
+  return (
+    <div className="flex items-center justify-center min-h-screen bg-black text-cyan-400 p-4 font-mono overflow-hidden" style={{
+      backgroundImage: 'url(https://d2xsxph8kpxj0f.cloudfront.net/310519663439873820/o5AQewRcV8tiTtnkrVKgEe/hero-terminal-background-JZiieCP7HeBTCqs8mkdnop.webp)',
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundAttachment: 'fixed'
+    }}>
+      {/* Overlay for better text readability */}
+      <div className="absolute inset-0 bg-black/70 pointer-events-none" />
+      
+      <div className="w-full max-w-5xl bg-black/80 rounded-lg overflow-hidden shadow-2xl border-2 border-cyan-400 relative z-10" style={{
+        boxShadow: '0 0 20px rgba(0, 217, 255, 0.3), inset 0 0 20px rgba(0, 217, 255, 0.1)'
+      }}>
+        {/* Terminal Header */}
+        <div className="flex items-center gap-2 p-3 bg-gray-900 text-xs text-gray-400 border-b border-cyan-400/30">
+          <div className="flex gap-1.5">
+            <div className="w-3 h-3 rounded-full bg-red-500 hover:bg-red-400 transition-colors cursor-pointer" />
+            <div className="w-3 h-3 rounded-full bg-yellow-500 hover:bg-yellow-400 transition-colors cursor-pointer" />
+            <div className="w-3 h-3 rounded-full bg-lime-500 hover:bg-lime-400 transition-colors cursor-pointer" />
+          </div>
+          <div className="flex-1 text-center font-semibold text-cyan-400">abrar@portfolio:~$ | Terminal v1.0</div>
+          <div className="text-xs">
+            <span className="text-lime-400 animate-pulse">●</span> ONLINE
+          </div>
+        </div>
+
+        {/* Terminal Output */}
+        <div 
+          ref={terminalRef} 
+          className="h-[70vh] overflow-y-auto p-6 space-y-3 bg-black/50 cursor-text"
+          style={{
+            scrollbarWidth: 'thin',
+            scrollbarColor: '#00D9FF #0A0E27'
+          }}
+        >
+          {history.map((entry, i) => (
+            <div key={i} className="space-y-2 animate-fadeIn">
+              <div className="flex gap-2">
+                <span className="text-lime-400 font-semibold">abrar@portfolio:~$</span>
+                <span className="text-white">{entry.command}</span>
+              </div>
+              <div className="whitespace-pre-wrap text-gray-300 pl-6 leading-relaxed text-sm">
+                {renderOutput(entry.output)}
+              </div>
+            </div>
+          ))}
+
+          {/* Current Command Input */}
+          <div className="flex gap-2 items-center">
+            <span className="text-lime-400 font-semibold">abrar@portfolio:~$</span>
+            <input
+              ref={inputRef}
+              type="text"
+              value={currentCommand}
+              onChange={e => setCurrentCommand(e.target.value)}
+              onKeyDown={handleKeyDown}
+              className="flex-1 bg-transparent outline-none text-white caret-cyan-400"
+              autoFocus
+              spellCheck="false"
+            />
+            <span className="text-cyan-400 animate-pulse">█</span>
+          </div>
+
+          {/* Auto-scroll anchor */}
+          <div ref={bottomRef} />
+        </div>
+        
+        {/* Terminal Footer */}
+        <div className="bg-gray-900 px-6 py-3 text-xs text-gray-500 border-t border-cyan-400/30">
+          <div className="flex justify-between items-center">
+            <span className="text-cyan-400/70">Type 'help' for commands • Use ↑/↓ arrows for history</span>
+            <span className="text-lime-400/70">Press Ctrl+C to interrupt • 'clear' to reset</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
