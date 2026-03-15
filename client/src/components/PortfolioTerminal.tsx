@@ -4,18 +4,17 @@ import { useState, useRef, useEffect } from 'react'
 
 export default function PortfolioTerminal() {
   const desktopWelcomeMessage = `
-╔═══════════════════════════════════════════════════════════════╗
-║                                                               ║
-║      █████╗ ██████╗ ██████╗  █████╗ ██████╗                  ║
-║     ██╔══██╗██╔══██╗██╔══██╗██╔══██╗██╔══██╗                 ║
-║     ███████║██████╔╝██████╔╝███████║██████╔╝                 ║
-║     ██╔══██║██╔══██╗██╔══██╗██╔══██║██╔══██╗                 ║
-║     ██║  ██║██████╔╝██║  ██║██║  ██║██║  ██║                 ║
-║     ╚═╝  ╚═╝╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝                 ║
-║                                                               ║
-║              Blockchain Developer & Prompt Engineer          ║
-║                                                               ║
-╚═══════════════════════════════════════════════════════════════╝
++---------------------------------------------------------------+
+|                                                               |
+|    _    ____  ____      _    ____                             |
+|   / \  | __ )|  _ \    / \  |  _ \                            |
+|  / _ \ |  _ \| |_) |  / _ \ | |_) |                           |
+| / ___ \| |_) |  _ <  / ___ \|  _ <                            |
+|/_/   \_\____/|_| \_\/_/   \_\_| \_\                           |
+|                                                               |
+|           Blockchain Developer & Prompt Engineer              |
+|                                                               |
++---------------------------------------------------------------+
 
 [SYSTEM INITIALIZED] - Portfolio Terminal v1.0
 [STATUS] System online and ready for interaction
@@ -602,7 +601,14 @@ Type 'help' to see available commands.`
                 <span className="text-lime-400 font-semibold sm:hidden whitespace-nowrap">$</span>
                 <span className="text-white break-all">{entry.command}</span>
               </div>
-              <div className={`${i === 0 ? 'whitespace-pre overflow-x-auto' : 'whitespace-pre-wrap break-words'} text-gray-300 pl-3 sm:pl-6 leading-relaxed text-xs sm:text-sm`}>
+              <div
+                className={`${i === 0 ? 'whitespace-pre overflow-x-auto' : 'whitespace-pre-wrap break-words'} text-gray-300 pl-3 sm:pl-6 leading-relaxed text-xs sm:text-sm`}
+                style={
+                  i === 0
+                    ? { fontFamily: 'Consolas, "Courier New", monospace' }
+                    : undefined
+                }
+              >
                 {renderOutput(entry.output)}
                 {i === 0 && isBootTyping && <span className="terminal-cursor text-cyan-400 ml-1">█</span>}
               </div>
