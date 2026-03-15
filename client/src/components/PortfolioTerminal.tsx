@@ -3,18 +3,19 @@
 import { useState, useRef, useEffect } from 'react'
 
 export default function PortfolioTerminal() {
-  const desktopWelcomeMessage = `
-+---------------------------------------------------------------+
-|                                                               |
-|    _    ____  ____      _    ____                             |
-|   / \  | __ )|  _ \    / \  |  _ \                            |
-|  / _ \ |  _ \| |_) |  / _ \ | |_) |                           |
-| / ___ \| |_) |  _ <  / ___ \|  _ <                            |
-|/_/   \_\____/|_| \_\/_/   \_\_| \_\                           |
-|                                                               |
-|           Blockchain Developer & Prompt Engineer              |
-|                                                               |
-+---------------------------------------------------------------+
+  const welcomeMessage = `
+╔═══════════════════════════════════════════════════════════════╗
+║                                                               ║
+║      █████╗ ██████╗ ██████╗  █████╗ ██████╗                   ║
+║     ██╔══██╗██╔══██╗██╔══██╗██╔══██╗██╔══██╗                  ║
+║     ███████║██████╔╝██████╔╝███████║██████╔╝                  ║
+║     ██╔══██║██╔══██╗██╔══██╗██╔══██║██╔══██╗                  ║
+║     ██║  ██║██████╔╝██║  ██║██║  ██║██║  ██║                  ║
+║     ╚═╝  ╚═╝╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝                  ║
+║                                                               ║
+║         Blockchain Developer & Prompt Engineer                ║
+║                                                               ║
+╚═══════════════════════════════════════════════════════════════╝
 
 [SYSTEM INITIALIZED] - Portfolio Terminal v1.0
 [STATUS] System online and ready for interaction
@@ -22,22 +23,6 @@ export default function PortfolioTerminal() {
 
 Type 'help' to see available commands.
 Type 'about' to learn more about me.`
-
-  const mobileWelcomeMessage = `
-[SYSTEM INITIALIZED] - Portfolio Terminal v1.0
-[STATUS] System online and ready for interaction
-[LOCATION] Bangalore, India
-
-ABRAR PASHA
-Blockchain Developer & Prompt Engineer
-
-Type 'help' to see available commands.
-Type 'about' to learn more about me.`
-
-  const [isMobileView, setIsMobileView] = useState(
-    typeof window !== 'undefined' ? window.innerWidth < 640 : false,
-  )
-  const welcomeMessage = isMobileView ? mobileWelcomeMessage : desktopWelcomeMessage
 
   const [history, setHistory] = useState<Array<{ command: string; output: string }>>([
     { command: '/welcome', output: '' },
@@ -412,19 +397,20 @@ Say "hireme" next time and this becomes real.
       return
     }
 
-    const commandFn = commands[cmd as keyof typeof commands]
+    const hasCommand = Object.prototype.hasOwnProperty.call(commands, cmd)
+    const commandFn = hasCommand ? commands[cmd as keyof typeof commands] : undefined
 
     commandCountRef.current += 1
-    if (commandFn) {
+    if (hasCommand && commandFn) {
       validCommandCountRef.current += 1
       commandUsageRef.current[cmd] = (commandUsageRef.current[cmd] || 0) + 1
     }
 
-    const output = commandFn ? commandFn() : `$ command not found: ${cmd}
+    const output = hasCommand && commandFn ? commandFn() : `$ command not found: ${cmd}
 Type 'help' to see available commands.`
 
     if (soundEnabled) {
-      playKeySound(commandFn ? 360 : 220, commandFn ? 0.03 : 0.05, commandFn ? 0.015 : 0.02)
+      playKeySound(hasCommand && commandFn ? 360 : 220, hasCommand && commandFn ? 0.03 : 0.05, hasCommand && commandFn ? 0.015 : 0.02)
     }
 
     if (cmd !== 'clear') {
@@ -489,15 +475,6 @@ Type 'help' to see available commands.`
   }, [welcomeMessage])
 
   useEffect(() => {
-    const onResize = () => {
-      setIsMobileView(window.innerWidth < 640)
-    }
-
-    window.addEventListener('resize', onResize)
-    return () => window.removeEventListener('resize', onResize)
-  }, [])
-
-  useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [history])
 
@@ -545,26 +522,26 @@ Type 'help' to see available commands.`
   }
 
   return (
-    <div className="relative flex items-center justify-center min-h-[100dvh] bg-black text-cyan-400 p-2 sm:p-4 font-mono overflow-x-hidden" style={{
+    <div className="flex items-center justify-center min-h-screen bg-black text-cyan-400 p-4 font-mono overflow-hidden" style={{
       backgroundImage: 'url(https://d2xsxph8kpxj0f.cloudfront.net/310519663439873820/o5AQewRcV8tiTtnkrVKgEe/hero-terminal-background-JZiieCP7HeBTCqs8mkdnop.webp)',
       backgroundSize: 'cover',
       backgroundPosition: 'center',
-      backgroundAttachment: 'scroll'
+      backgroundAttachment: 'fixed'
     }}>
       {/* Overlay for better text readability */}
       <div className="absolute inset-0 bg-black/70 pointer-events-none" />
       
-      <div className="w-full max-w-5xl bg-black/80 rounded-lg overflow-hidden shadow-2xl border border-cyan-400 sm:border-2 relative z-10" style={{
+      <div className="w-full max-w-5xl bg-black/80 rounded-lg overflow-hidden shadow-2xl border-2 border-cyan-400 relative z-10" style={{
         boxShadow: '0 0 20px rgba(0, 217, 255, 0.3), inset 0 0 20px rgba(0, 217, 255, 0.1)'
       }}>
         {/* Terminal Header */}
-        <div className="flex items-center gap-1.5 sm:gap-2 p-2 sm:p-3 bg-gray-900 text-[10px] sm:text-xs text-gray-400 border-b border-cyan-400/30">
+        <div className="flex items-center gap-2 p-3 bg-gray-900 text-xs text-gray-400 border-b border-cyan-400/30">
           <div className="flex gap-1.5">
             <div className="w-3 h-3 rounded-full bg-red-500 hover:bg-red-400 transition-colors cursor-pointer" />
             <div className="w-3 h-3 rounded-full bg-yellow-500 hover:bg-yellow-400 transition-colors cursor-pointer" />
             <div className="w-3 h-3 rounded-full bg-lime-500 hover:bg-lime-400 transition-colors cursor-pointer" />
           </div>
-          <div className="flex-1 text-center font-semibold text-cyan-400 truncate px-1">Terminal v1.0</div>
+          <div className="flex-1 text-center font-semibold text-cyan-400">abrar@portfolio:~$ | Terminal v1.0</div>
           <button
             type="button"
             onClick={() => {
@@ -576,11 +553,11 @@ Type 'help' to see available commands.`
                 return next
               })
             }}
-            className={`rounded border px-1.5 sm:px-2 py-0.5 text-[9px] sm:text-[10px] font-semibold transition-colors ${soundEnabled ? 'border-lime-400 text-lime-400 hover:bg-lime-400/10' : 'border-gray-500 text-gray-400 hover:bg-gray-700/40'}`}
+            className={`mr-3 rounded border px-2 py-0.5 text-[10px] font-semibold transition-colors ${soundEnabled ? 'border-lime-400 text-lime-400 hover:bg-lime-400/10' : 'border-gray-500 text-gray-400 hover:bg-gray-700/40'}`}
           >
             {soundEnabled ? 'SFX ON' : 'SFX OFF'}
           </button>
-          <div className="text-[10px] sm:text-xs whitespace-nowrap">
+          <div className="text-xs">
             <span className="text-lime-400 animate-pulse">●</span> ONLINE
           </div>
         </div>
@@ -588,7 +565,7 @@ Type 'help' to see available commands.`
         {/* Terminal Output */}
         <div 
           ref={terminalRef} 
-          className="h-[68dvh] sm:h-[70vh] overflow-y-auto p-3 sm:p-6 space-y-3 bg-black/50 cursor-text"
+          className="h-[70vh] overflow-y-auto p-6 space-y-3 bg-black/50 cursor-text"
           style={{
             scrollbarWidth: 'thin',
             scrollbarColor: '#00D9FF #0A0E27'
@@ -596,19 +573,11 @@ Type 'help' to see available commands.`
         >
           {history.map((entry, i) => (
             <div key={i} className="space-y-2 animate-fadeIn">
-              <div className="flex gap-2 min-w-0">
-                <span className="text-lime-400 font-semibold hidden sm:inline whitespace-nowrap">abrar@portfolio:~$</span>
-                <span className="text-lime-400 font-semibold sm:hidden whitespace-nowrap">$</span>
-                <span className="text-white break-all">{entry.command}</span>
+              <div className="flex gap-2">
+                <span className="text-lime-400 font-semibold">abrar@portfolio:~$</span>
+                <span className="text-white">{entry.command}</span>
               </div>
-              <div
-                className={`${i === 0 ? 'whitespace-pre overflow-x-auto' : 'whitespace-pre-wrap break-words'} text-gray-300 pl-3 sm:pl-6 leading-relaxed text-xs sm:text-sm`}
-                style={
-                  i === 0
-                    ? { fontFamily: 'Consolas, "Courier New", monospace' }
-                    : undefined
-                }
-              >
+              <div className="whitespace-pre-wrap text-gray-300 pl-6 leading-relaxed text-sm">
                 {renderOutput(entry.output)}
                 {i === 0 && isBootTyping && <span className="terminal-cursor text-cyan-400 ml-1">█</span>}
               </div>
@@ -616,9 +585,8 @@ Type 'help' to see available commands.`
           ))}
 
           {/* Current Command Input */}
-          <div className="flex gap-2 items-center min-w-0">
-            <span className="text-lime-400 font-semibold hidden sm:inline whitespace-nowrap">abrar@portfolio:~$</span>
-            <span className="text-lime-400 font-semibold sm:hidden whitespace-nowrap">$</span>
+          <div className="flex gap-2 items-center">
+            <span className="text-lime-400 font-semibold">abrar@portfolio:~$</span>
             <input
               ref={inputRef}
               type="text"
@@ -626,7 +594,7 @@ Type 'help' to see available commands.`
               onChange={e => setCurrentCommand(e.target.value)}
               onKeyDown={handleKeyDown}
               disabled={isBootTyping}
-              className="flex-1 min-w-0 bg-transparent outline-none text-white caret-cyan-400 text-sm sm:text-base"
+              className="flex-1 bg-transparent outline-none text-white caret-cyan-400"
               placeholder={isBootTyping ? 'Boot sequence running...' : 'Type a command...'}
               autoFocus
               spellCheck="false"
@@ -638,10 +606,10 @@ Type 'help' to see available commands.`
         </div>
         
         {/* Terminal Footer */}
-        <div className="bg-gray-900 px-3 sm:px-6 py-2.5 sm:py-3 text-[10px] sm:text-xs text-gray-500 border-t border-cyan-400/30">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-1 sm:gap-3">
+        <div className="bg-gray-900 px-6 py-3 text-xs text-gray-500 border-t border-cyan-400/30">
+          <div className="flex justify-between items-center">
             <span className="text-cyan-400/70">Type 'help' for commands • Use ↑/↓ arrows for history</span>
-            <span className="text-lime-400/70 hidden sm:inline">Press Ctrl+C to interrupt • 'clear' to reset</span>
+            <span className="text-lime-400/70">Press Ctrl+C to interrupt • 'clear' to reset</span>
           </div>
         </div>
       </div>
